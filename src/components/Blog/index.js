@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 // la barre d'adresse. Comparaison "qui commence par" => si on veut une comparaison
 // exacte, il faut ajouter la prop "exact" sur la Route
 import { Route } from 'react-router-dom';
-
+const axios = require('axios');
 // Composants
 import Header from 'src/components/Header';
 import Posts from 'src/components/Posts';
@@ -66,15 +66,51 @@ const Blog = () => {
   // valeur de la case et en même temps un nouveau rendu => la nouvelle valeur
   // ne sera disponible qu'au moment du nouveau rendu
 
+
+
   const loadPosts = () => {
+
     console.log('Il faut charger les articles');
 
     // envoyer une requête à l'API
 
+    
     // attendre la réponse puis la traiter => appeler setPosts en fournissant en
     // argument les articles, et normalement les articles devraient s'afficher
+    axios.fetch("https://api.example.com/items")
+    .then(res => res.json())
+    .then(
+      (result) => {
+        setZenMode(true);
+        setPosts(result.posts);
+      },
+      // Remarque : il faut gérer les erreurs ici plutôt que dans
+      // un bloc catch() afin que nous n’avalions pas les exceptions
+      // dues à de véritables bugs dans les composants.
+      (error) => {
+        setZenMode(true);
+        setError(error);
+      }
+    )
+},
 
-  };
+if (error) {
+  return <div>Erreur : </div>;
+} else if (!posts) {
+  return <div>Chargement...</div>;
+} else {
+  return (
+    <ul>
+      {posts.map(post => (
+        <li key={post.id}>
+          {post.title} {post.excerpt}
+        </li>
+      ))}
+    </ul>
+  );
+}
+}
+
 
   return (
     <div className="blog">
@@ -90,7 +126,6 @@ const Blog = () => {
       <Footer />
     </div>
   );
-};
 
 // == Export
 export default Blog;
